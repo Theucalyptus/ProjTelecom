@@ -24,23 +24,26 @@ function [mapping, h_bdb, h_p, Ns, M] = dvbs_mod(Bits, Rb,Fe, Fp)
     % 0 1 -> I=0, Q=1
     % 1 1 -> I=1, Q=1
     % 1 0 -> I=1, Q=0
-    Ak = Bits(1:2:end);
-    Bk = Bits(2:2:end);
+    Ak = 2*Bits(1:2:end) - 1;
+    Bk = 2*Bits(2:2:end) - 1;
     Dk = Ak + 1i*Bk;
     mapping = Dk;
 
     %% MODULATEUR BANDE DE BASE
-    B = rcosdesign(ROLL_OFF, L, Ns);
+    B = rcosdesign(ROLL_OFF, L, Ns, 'sqrt');
     u = zeros(1, Ns);
     u(1) = 1;
     k = kron(Dk', u);
     length(k)
     h_bdb=filter(B, 1, k); % signal bande de base
     h_bdb=h_bdb(L/2:end); % suppression des valeurs nulles à cause du retard du filtre
+    size(h_bdb)
+    h_bdb=[h_bdb, zeros(1, L/2)]; % ajout de zero à la fin
 
     %% PASSAGE SUR PORTEUSE
     temps = linspace(0, (length(Dk)-1)*Ts, length(h_bdb));  
-    h=h_bdb.*exp(2i*pi*Fp*temps); % signal transporté sur porteuse
+    h_p=h_bdb.*exp(2i*pi*Fp*temps); % signal transporté sur porteuse
+    h_p=real(h_p);
 
 end
 

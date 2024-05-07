@@ -3,7 +3,7 @@ Fp = 3e3; % fréquence porteuse
 Fe = 24e3;
 Fe_pbe = 6e3; % fréquence d'échantillonnage
 
-NBBITS=50000;
+NBBITS=500;
 Bits=randi([0 1], NBBITS, 1);
 
 EbN0_db=0:1:6; % rapport signal à bruit en Db
@@ -51,18 +51,18 @@ h_bdb=h_bdb_r(L/2*Ns+1:end); % suppression des valeurs nulles à cause du retard
 temps = linspace(0, (length(Dk)-1)*Ts, length(h_bdb));  
 
 B = rcosdesign(ROLL_OFF, L, Ns_pbe, 'sqrt');
-u = zeros(1, Ns_pbe);
+u = zeros(1, Ns);
 u(1) = 1;
 k = kron(Dk', u);
 k = [k, zeros(1, L/2*Ns_pbe)];
 h_bdb_r_pbe=filter(B, 1, k); % signal bande de base
-h_bdb_pbe=h_bdb_r_pbe(L/2*Ns_pbe+1:end); % suppression des valeurs nulles à cause du retard du filtre
-temps_bde = linspace(0, (length(Dk)-1)*Ts, length(h_bdb_pbe));  
+h_bdb_pbe=h_bdb_r_pbe(L/2*Ns_p+1:end); % suppression des valeurs nulles à cause du retard du filtre
+temps = linspace(0, (length(Dk)-1)*Ts, length(h_bdb));  
 
 figure 
 hold on
-plot(temps_bde, real(h_bdb_pbe))
-plot(temps_bde, imag(h_bdb_pbe))
+plot(temps, real(h_bdb))
+plot(temps, imag(h_bdb))
 xlabel("Temps (s)")
 ylabel("Signal")
 legend("En phase", "En quadrature")
@@ -90,7 +90,7 @@ for j=1:length(EbN0)
     ebn0 = EbN0(j);
     TEB_theorique(j) = qfunc(sqrt(4*EbN0(j))*sin(pi/M)); % Es=2*Eb et TEB = TES/log2(M)
     h_bruiteP = bruit(h_p, Ns, M, ebn0);
-    h_bruitePBE = bruit_complexe(h_bdb_pbe, Ns_pbe, M, ebn0);
+    h_bruitePBE = bruit_complexe(h_bdb_pbe, h_p, Ns_pbe, M, ebn0);
 
     %% Démodulation
     I = 2*h_bruiteP.*cos(2*pi*Fp*temps);
@@ -163,7 +163,7 @@ figure
 hold on
 semilogy(EbN0_db, TEB_porteuse)
 semilogy(EbN0_db, TEB_theorique)
-semilogy(EbN0_db, TEB_passebaseq, "r-*")
+semilogy(EbN0_db, TEB_passebaseq)
 legend("Porteuse exp", "Théorique", "Passe base eq exp")
 title("TEB de la QPSK en fonction du bruit")
 xlabel("Eb/N0 (db)")

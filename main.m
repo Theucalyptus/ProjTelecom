@@ -2,7 +2,7 @@ Rb=3000; % débit binaire
 Fp = 3e3; % fréquence porteuse
 Fe = 24e3; % fréquence d'échantillonnage
 
-NBBITS=2000;
+NBBITS=5000;
 Bits=randi([0 1], NBBITS, 1);
 
 EbN0_db=0:1:16; % rapport signal à bruit en Db
@@ -17,7 +17,7 @@ M=4; % ordre de la modulation
 % Initialisation des constantes du programme
 Te = 1 / Fe; % Temps d'échantillonage
 Tb=1/Rb; % Temps binaire
-Ts=Tb/log2(M); % Temps symbole
+Ts=Tb*log2(M); % Temps symbole
 Ns=round(Ts/Te); % Facteur de sur-échantillonage
 
 
@@ -37,16 +37,15 @@ B = rcosdesign(ROLL_OFF, L, Ns, 'sqrt');
 u = zeros(1, Ns);
 u(1) = 1;
 k = kron(Dk', u);
-h_bdb=filter(B, 1, k); % signal bande de base
-h_bdb=h_bdb(L/2+1:end); % suppression des valeurs nulles à cause du retard du filtre
-h_bdb=[h_bdb, zeros(1, L/2)]; % ajout de zero à la fin
+k = [k, zeros(1, L/2*Ns)];
+h_bdb_r=filter(B, 1, k); % signal bande de base
+h_bdb=h_bdb_r(L/2*Ns+1:end); % suppression des valeurs nulles à cause du retard du filtre
 temps = linspace(0, (length(Dk)-1)*Ts, length(h_bdb));  
-
 
 figure 
 hold on
-plot(temps, real(h_bdb))
-plot(temps, imag(h_bdb))
+plot(real(h_bdb))
+plot(imag(h_bdb))
 xlabel("Temps (s)")
 ylabel("Signal")
 legend("En phase", "En quadrature")
@@ -80,29 +79,25 @@ TEB = zeros(length(EbN0), 1); % vecteur des TEB
 for j=1:length(EbN0)
     ebn0 = EbN0(j);
     h_bruite = bruit(h_p, Ns, M, ebn0);
-   
 
     %% Démodulation
-    length(temps)
-    length(h_bruite)
     I = 2*h_bruite.*cos(2*pi*Fp*temps);
     Q = 2*h_bruite.*sin(2*pi*Fp*temps);
 
-    L=10;
-    ROLL_OFF=0.35;
-    B = rcosdesign(ROLL_OFF, L, Ns);
+    I = [I, zeros(1, L/2*Ns)];
+    Q = [Q, zeros(1, L/2*Ns)];
+
+    B = rcosdesign(ROLL_OFF, L, Ns, "sqrt");
     I_filtre = filter(B, 1, I);
-    I_filtre = [I_filtre(L/2+1:end), zeros(1, L/2)];
     Q_filtre = filter(B, 1, Q);
-    Q_filtre = [Q_filtre(L/2+1:end), zeros(1, L/2)];
     Hr = I_filtre - 1i*Q_filtre;
+    Hr = Hr(L/2*Ns+1:end);
 
     %% Décision symboles
     seuilR = 0; % seuil sur la partie réelle
     seuilI = 0; % seuil sur la partie imaginaire
     NbSym = length(Dk);
-    N0 = Ns; % instant d'échantillonage
-    Hr_ech = Hr(N0 + [0:NbSym-1]*Ns);
+    Hr_ech = Hr(1:Ns:end);
     DecAk = real(Hr_ech) > seuilR;
     DecBk = imag(Hr_ech) < seuilI;
 
@@ -131,4 +126,5 @@ title("TEB en fonction du bruit")
 xlabel("Eb/N0 (db)")
 ylabel("TEB")
 yscale('log')
+grid("on")
 xticks(EbN0_db)

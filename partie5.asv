@@ -10,7 +10,7 @@ EbN0=10.^(EbN0_db/10); % en rapport
 
 %% CONSTANTES FILTRES DVBS
 ROLL_OFF=0.35;
-L=10;
+L=20;
 M=4; % ordre de la modulation
 
 
@@ -22,11 +22,9 @@ M_s2=8;
 % Initialisation des constantes du programme
 Te = 1 / Fe; % Temps d'échantillonage
 Tb=1/Rb; % Temps binaire
-
-Ts=Tb*log2(M); % Temps symbole QPSK
+Ts=Tb*log2(M); % Temps symbole
+Ts_s2=Tb*log2(M_s2);
 Ns=round(Ts/Te); % Facteur de sur-échantillonage
-
-Ts_s2=Tb*log2(M_s2); % Temps symbole 8-PSK
 Ns_s2=round(Ts_s2/Te);
 
 
@@ -82,7 +80,7 @@ B = rcosdesign(ROLL_OFF, L, Ns, 'sqrt');
 u = zeros(1, Ns);
 u(1) = 1;
 k_qpsk = kron(Dk_qpsk', u);
-k_qpsk = [k_qpsk, zeros(1, Ns*L/2)];
+k_qpsk = [k_qpsk, zeros(1, L/2*Ns)];
 h_qpsk=filter(B, 1, k_qpsk); % signal bande de base
 h_qpsk=h_qpsk(L/2*Ns+1:end); % suppression des valeurs nulles à cause du retard du filtre
 
@@ -91,9 +89,9 @@ B = rcosdesign(ROLL_OFF_s2, L, Ns_s2, 'sqrt');
 u = zeros(1, Ns_s2);
 u(1) = 1;
 k_s2 = kron(Dk_s2', u);
-k_s2 = [k_s2, zeros(1, Ns_s2*L/2)];
+k_s2 = [k_s2, zeros(1, L/2*Ns_s2)];
 h_8psk=filter(B, 1, k_s2); % signal bande de base
-h_8psk=h_8psk(Ns_s2*L/2+1:end); % suppression des valeurs nulles à cause du retard du filtre
+h_8psk=h_8psk(L/2*Ns_s2+1:end); % suppression des valeurs nulles à cause du retard du filtre
 
 
 

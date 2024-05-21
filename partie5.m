@@ -122,8 +122,8 @@ for j=1:length(EbN0)
 
 
     h_bruite_qpsk = bruit_complexe(h_qpsk, Ns, M, ebn0);
-    %h_bruite_8psk = bruit_complexe(h_s2, Ns_s2, M_s2, ebn0);
-    h_bruite_8psk = h_s2;
+    h_bruite_8psk = bruit_complexe(h_s2, Ns_s2, M_s2, ebn0);
+    %h_bruite_8psk = h_s2;
 
     %% DEMODULATION QPSK BANDE DE BASE
     h_bruite_qpsk = [h_bruite_qpsk, zeros(1, L/2*Ns)];
@@ -168,7 +168,7 @@ for j=1:length(EbN0)
     ylabel("Bk")
 
     Dec1 = real(Hr_ech) > 0; % partie réelle positive
-    Dec2 = imag(Hr_ech) > 0; % partie imaginaire positive
+    Dec2 = imag(Hr_ech) < 0; % partie imaginaire positive
     Dec3 = abs(real(Hr_ech)) > abs(imag(Hr_ech)); % partie réelle > partie imaginaire
     BitsDecodes_s2 = zeros(log2(M_s2)*length(Hr_ech), 1);
     for i=1:length(Hr_ech)

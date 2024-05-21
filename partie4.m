@@ -36,8 +36,8 @@ Dk_4ask = pammod(SymAsk, M, 0, "gray");
 
 figure
 hold on
-plot(Ak_qpsk, Bk_qpsk, "c*")
-plot(Dk_4ask, "rx");
+plot(Ak_qpsk, Bk_qpsk, "b*")
+plot(Dk_4ask, "ro");
 title("Constellation en sortie du mapping sans bruit")
 xlabel("Ak")
 ylabel("Bk")
@@ -133,7 +133,7 @@ for j=1:length(EbN0)
     Hr_ech = Hr(1:Ns:end);
     figure
     hold on
-    plot(real(Hr_ech), zeros(length(Hr_ech), 1), "g*")
+    plot(real(Hr_ech), zeros(length(Hr_ech), 1), "b*")
     title(strcat("Constellation pour Eb/N0=", strcat(num2str(EbN0_db(j)), "db")))
     xlabel("Ak")
 
@@ -156,10 +156,10 @@ end
 %% Trace du TEB
 figure 
 hold on
-semilogy(EbN0_db, TEB_qpsk)
+semilogy(EbN0_db, TEB_qpsk, "m-*")
 semilogy(EbN0_db, TEB_ask, "r-*")
-semilogy(EbN0_db, TEB_ask_th, "b-*")
-semilogy(EbN0_db, TEB_qpsk_th, "g-*")
+semilogy(EbN0_db, TEB_ask_th, "b--o")
+semilogy(EbN0_db, TEB_qpsk_th, "g--o")
 legend("QPSK exp", "4-ASK exp", "4-ASK Théorique", "QPSK Théorique")
 title("TEB en fonction du bruit")
 xlabel("Eb/N0 (db)")

@@ -34,7 +34,7 @@ Bk = 2*Bits(2:2:end) - 1;
 Dk = Ak + 1i*Bk;
 figure
 hold on
-plot(Ak, Bk, "c*")
+plot(Ak, Bk, "bo")
 title("Constellation en sortie du mapping")
 xlabel("Ak")
 ylabel("Bk")

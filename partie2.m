@@ -123,9 +123,9 @@ end
 %% Trace du TEB
 figure 
 hold on
-semilogy(EbN0_db, TEB)
-semilogy(EbN0_db, TEB_theorique)
-legend("Experimental", "Théorique")
+semilogy(EbN0_db, TEB_theorique, "r--x")
+semilogy(EbN0_db, TEB, "b-o")
+legend("Théorique", "Experimental")
 title("TEB de la QPSK en fonction du bruit")
 xlabel("Eb/N0 (db)")
 ylabel("TEB")

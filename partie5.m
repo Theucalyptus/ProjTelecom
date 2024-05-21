@@ -87,13 +87,13 @@ h_qpsk=filter(B, 1, k_qpsk); % signal bande de base
 h_qpsk=h_qpsk(L/2*Ns+1:end); % suppression des valeurs nulles à cause du retard du filtre
 
 %dvbs2
-B = rcosdesign(ROLL_OFF_s2, L, Ns_s2, 'sqrt');
-u = zeros(1, Ns_s2);
-u(1) = 1;
-k_s2 = kron(Dk_s2', u);
+B_s2 = rcosdesign(ROLL_OFF_s2, L, Ns_s2, 'sqrt');
+u_s2 = zeros(1, Ns_s2);
+u_s2(1) = 1;
+k_s2 = kron(Dk_s2', u_s2);
 k_s2 = [k_s2, zeros(1, Ns_s2*L/2)];
-h_8psk=filter(B, 1, k_s2); % signal bande de base
-h_8psk=h_8psk(Ns_s2*L/2+1:end); % suppression des valeurs nulles à cause du retard du filtre
+h_s2=filter(B_s2, 1, k_s2); % signal bande de base
+h_s2=h_s2(Ns_s2*L/2+1:end); % suppression des valeurs nulles à cause du retard du filtre
 
 
 
@@ -103,7 +103,7 @@ hold on
 dsp = pwelch(h_qpsk, [],[],[],Fe,'twosided');
 ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
-dsp = pwelch(h_8psk, [],[],[],Fe,'twosided');
+dsp = pwelch(h_s2, [],[],[],Fe,'twosided');
 ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
 legend('QPSK (DVB-S)', '8-PSK (DVB-S2)');
@@ -122,7 +122,8 @@ for j=1:length(EbN0)
 
 
     h_bruite_qpsk = bruit_complexe(h_qpsk, Ns, M, ebn0);
-    h_bruite_8psk = bruit_complexe(h_8psk, Ns_s2, M_s2, ebn0);
+    %h_bruite_8psk = bruit_complexe(h_s2, Ns_s2, M_s2, ebn0);
+    h_bruite_8psk = h_s2;
 
     %% DEMODULATION QPSK BANDE DE BASE
     h_bruite_qpsk = [h_bruite_qpsk, zeros(1, L/2*Ns)];

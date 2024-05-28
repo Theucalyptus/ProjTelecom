@@ -1,5 +1,5 @@
 Rb=3000; % débit binaire
-Fp = 3e3; % fréquence porteuse
+Fp = 2e3; % fréquence porteuse
 Fe = 24e3; % fréquence d'échantillonnage
 
 NBBITS=50000;
@@ -70,9 +70,10 @@ ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
 hold on
 dsp = pwelch(h_p, [],[],[],Fe,'twosided');
-ech_freq=linspace(-Fp-Fe/2, Fp+Fe/2, length(dsp));
+ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
 legend('Bande de base', 'Transportée sur porteuse');
+grid("on");
 title('DSP')
 
 TEB = zeros(length(EbN0), 1); % vecteur des TEB

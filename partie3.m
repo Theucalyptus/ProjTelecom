@@ -1,5 +1,5 @@
 Rb=3000; % débit binaire
-Fp = 3e3; % fréquence porteuse
+Fp = 2e3; % fréquence porteuse
 Fe = 24e3;
 Fe_pbe = 6e3; % fréquence d'échantillonnage
 
@@ -75,10 +75,16 @@ h_p=real(h_p);
 
 %% Tracé des DSP
 figure
-dsp = pwelch(h_bdb_pbe, [],[],[],Fe,'twosided');
-ech_freq=linspace(-2*Fp-Fe/2, 2*Fp+Fe/2, length(dsp));
+hold on
+dsp = pwelch(h_p, [],[],[],Fe,'twosided');
+ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
-legend('Enveloppe complexe');
+dsp = pwelch(h_bdb_pbe, [],[],[],Fe_pbe,'twosided');
+ech_freq=linspace(-Fe_pbe/2, Fe_pbe/2, length(dsp));
+semilogy(ech_freq, fftshift(dsp));
+legend('Sur porteuse', 'Enveloppe complexe');
+grid("on");
+yscale('log')
 title('DSP')
 
 TEB_porteuse = zeros(length(EbN0), 1); % vecteur des TEB

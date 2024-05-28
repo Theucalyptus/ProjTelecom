@@ -133,7 +133,7 @@ for j=1:length(EbN0)
     Hr_ech = Hr(1:Ns:end);
     figure
     hold on
-    plot(real(Hr_ech), zeros(length(Hr_ech), 1), "b*")
+    plot(real(Hr_ech), imag(Hr_ech), "b*")
     title(strcat("Constellation pour Eb/N0=", strcat(num2str(EbN0_db(j)), "db")))
     xlabel("Ak")
 

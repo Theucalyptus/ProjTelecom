@@ -1,7 +1,7 @@
 Rb=3000; % débit binaire
 Fe = 6e3;
 
-NBBITS=30000;
+NBBITS=300000;
 Bits=randi([0 1], NBBITS, 1);
 
 EbN0_db=0:1:6; % rapport signal à bruit en Db

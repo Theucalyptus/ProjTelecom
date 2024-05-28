@@ -75,10 +75,10 @@ h_p=real(h_p);
 
 %% Tracé des DSP
 figure
-dsp = pwelch(h_p, [],[],[],Fe,'twosided');
+dsp = pwelch(h_bdb_pbe, [],[],[],Fe,'twosided');
 ech_freq=linspace(-2*Fp-Fe/2, 2*Fp+Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
-legend('Sur porteuse');
+legend('Enveloppe complexe');
 title('DSP')
 
 TEB_porteuse = zeros(length(EbN0), 1); % vecteur des TEB

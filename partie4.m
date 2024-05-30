@@ -71,6 +71,8 @@ dsp = pwelch(h_ask, [],[],[],Fe,'twosided');
 ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
 semilogy(ech_freq, fftshift(dsp));
 legend('QPSK', 'ASK');
+xlabel("Fréquence (Hz)")
+yscale('log');
 title('DSP')
 
 TEB_qpsk = zeros(length(EbN0), 1); % vecteur des TEB
@@ -136,6 +138,7 @@ for j=1:length(EbN0)
     plot(real(Hr_ech), imag(Hr_ech), "b*")
     title(strcat("Constellation pour Eb/N0=", strcat(num2str(EbN0_db(j)), "db")))
     xlabel("Ak")
+    ylabel("Bk")
 
     DecSymAsk = pamdemod(Hr_ech, M, 0, "gray");
     BitsDecodes_ask = zeros(2*length(DecSymAsk), 1);

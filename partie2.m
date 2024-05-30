@@ -2,16 +2,16 @@ Rb=3000; % débit binaire
 Fp = 2e3; % fréquence porteuse
 Fe = 24e3; % fréquence d'échantillonnage
 
-NBBITS=50000;
-Bits=randi([0 1], NBBITS, 1);
+NBBITS=50000; % Taille de l'information binaire à transmettre
+Bits=randi([0 1], NBBITS, 1); % génération de l'information binaire aléatoire
 
 EbN0_db=0:1:6; % rapport signal à bruit en Db
 EbN0=10.^(EbN0_db/10); % en rapport
 
 
 %% CONSTANTES
-ROLL_OFF=0.35;
-L=10;
+ROLL_OFF=0.35; % roll-off du filtre de mise en forme (r-cos surélevé)
+L=10; % ordre du filtre
 M=4; % ordre de la modulation
 
 % Initialisation des constantes du programme
@@ -42,6 +42,7 @@ h_bdb_r=filter(B, 1, k); % signal bande de base
 h_bdb=h_bdb_r(L/2*Ns+1:end); % suppression des valeurs nulles à cause du retard du filtre
 temps = linspace(0, (length(Dk)-1)*Ts, length(h_bdb));  
 
+% Tracé des signaux après mise en forme
 figure 
 hold on
 plot(temps, real(h_bdb))
@@ -52,18 +53,18 @@ legend("En phase", "En quadrature")
 title("Signal transmis en bande de base")
 
 
-%% PASSAGE SUR PORTEUSE
+%% MODULATION - PASSAGE SUR PORTEUSE
 h_p=h_bdb.*exp(2i*pi*Fp*temps); % signal transporté sur porteuse
 h_p=real(h_p);
 
-%% Tracé signal sur porteuse temporel
+% Tracé signal sur porteuse temporel
 figure 
 plot(temps, h_p)
 xlabel("Temps (s)")
 ylabel("Signal")
 title("Signal transmis sur porteuse")
 
-%% Tracé des DSP
+% Tracé des DSP
 figure
 dsp = pwelch(h_bdb, [],[],[],Fe,'twosided');
 ech_freq=linspace(-Fe/2, Fe/2, length(dsp));
@@ -79,18 +80,21 @@ title('DSP')
 TEB = zeros(length(EbN0), 1); % vecteur des TEB
 TEB_theorique = zeros(length(EbN0), 1); % vecteur des TEB
 
+%% ITERATION EVALUATION SUR PLUSIEURS NIVEAU DE BRUIT
 for j=1:length(EbN0)
+    
     ebn0 = EbN0(j);
+    % calcul du TEB théorique
     TEB_theorique(j) = qfunc(sqrt(4*EbN0(j))*sin(pi/M)); % Es=2*Eb et TEB = TES/log2(M)
+    
+    % ajout du bruit au signal
     h_bruite = bruit(h_p, Ns, M, ebn0);
 
     %% Démodulation
     I = 2*h_bruite.*cos(2*pi*Fp*temps);
     Q = 2*h_bruite.*sin(2*pi*Fp*temps);
-
     I = [I, zeros(1, L/2*Ns)];
     Q = [Q, zeros(1, L/2*Ns)];
-
     B = rcosdesign(ROLL_OFF, L, Ns, "sqrt");
     I_filtre = filter(B, 1, I);
     Q_filtre = filter(B, 1, Q);

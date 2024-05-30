@@ -1,8 +1,9 @@
 Rb=3000; % débit binaire
-Fe = 6e3;
+Fe = 6e3; % Fréquence d'échantillonage
 
-NBBITS=300000;
-Bits=randi([0 1], NBBITS, 1);
+NBBITS=50000; % Taille de l'information binaire à transmettre
+Bits=randi([0 1], NBBITS, 1); % génération de l'information binaire aléatoire
+
 
 EbN0_db=0:1:6; % rapport signal à bruit en Db
 EbN0=10.^(EbN0_db/10); % en rapport
@@ -15,9 +16,8 @@ M=4; % ordre de la modulation
 
 
 %% CONSTANTES FILTRES DVBS2
-ROLL_OFF_s2=0.2;
-L=10;
-M_s2=8;
+ROLL_OFF_s2=0.2; % roll-off dvbs2
+M_s2=8; % ordre modulation
 
 % Initialisation des constantes du programme
 Te = 1 / Fe; % Temps d'échantillonage
@@ -41,7 +41,7 @@ Bk_qpsk = 2*Bits(2:2:end) - 1;
 Dk_qpsk = Ak_qpsk + 1i*Bk_qpsk;
 
 % mapping de gray 8-PSK
-
+% réalisé à la main car j'arrive pas à utiliser pskmod ;(
 Dk_s2 = zeros(NBBITS/log2(M_s2), 1);
 for i=1:length(Dk_s2)
     j=1 + log2(M_s2)*(i-1);
@@ -116,14 +116,15 @@ TEB_8psk_th = zeros(length(EbN0), 1); % vecteur des TEB
 
 for j=1:length(EbN0)
     ebn0 = EbN0(j);
+
+    % calcul des TEB théoriques
     TEB_8psk_th(j) = 2 * qfunc(sqrt(2*3*EbN0(j))*sin(pi/M_s2)) / log2(M_s2); % Es=3*Eb et TEB=TES / log2(M);
     TEB_qpsk_th(j) = qfunc(sqrt(4*EbN0(j))*sin(pi/M)); % Es=2*Eb et TEB = TES/log2(M);
 
 
-
+    % ajout du bruit
     h_bruite_qpsk = bruit_complexe(h_qpsk, Ns, M, ebn0);
     h_bruite_8psk = bruit_complexe(h_s2, Ns_s2, M_s2, ebn0);
-    %h_bruite_8psk = h_s2;
 
     %% DEMODULATION QPSK BANDE DE BASE
     h_bruite_qpsk = [h_bruite_qpsk, zeros(1, L/2*Ns)];
@@ -131,7 +132,7 @@ for j=1:length(EbN0)
     Hr = filter(B, 1, h_bruite_qpsk);
     Hr = Hr(L/2*Ns+1:end);
 
-    %% Décision symboles
+    % Décision symboles
     seuilR = 0; % seuil sur la partie réelle
     seuilI = 0; % seuil sur la partie imaginaire
     Hr_ech = Hr(1:Ns:end);
@@ -140,7 +141,7 @@ for j=1:length(EbN0)
 
 
     BitsDecodes = zeros(NBBITS, 1);
-    %% Dé-mapping
+    % Dé-mapping
     for i=1:length(DecAk_qpsk)
        if DecAk_qpsk(i)
            BitsDecodes(2*i-1) = 1;
@@ -158,7 +159,7 @@ for j=1:length(EbN0)
     Hr = filter(B, 1, h_bruite_8psk);
     Hr = Hr(L/2*Ns_s2+1:end);
 
-    %% Décision symboles
+    % Décision symboles
     Hr_ech = Hr(1:Ns_s2:end);
     figure
     hold on
